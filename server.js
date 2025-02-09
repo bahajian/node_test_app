@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
       </head>
       <body>
         <section>
-          <h2 style="color: yellow;">Hello Test App in YELLOW</h2>
+          <h2 style="color: green;">Hello Test App in GREEN</h2>
           <h3>${userGoal}</h3>
         </section>
         <form action="/store-goal" method="POST">
