@@ -5,7 +5,7 @@ on:
     branches:
       - master
     tags:
-      - "*"  # This will trigger the workflow when a tag is pushed
+      - "*"  # Triggers workflow when a tag is pushed
 
 jobs:
   build-and-push:
@@ -16,13 +16,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Determine the tag or branch name
+      # Determine the correct tag for the Docker image
       - name: Extract tag or branch name
         run: |
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
             echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
           else
-            echo "TAG_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+            echo "TAG_NAME=latest" >> $GITHUB_ENV
           fi
 
       # Log in to Docker Hub
