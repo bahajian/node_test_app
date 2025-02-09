@@ -27,7 +27,7 @@ jobs:
 
       # Build and push the Docker image
       - name: Build and push Docker image
-        run: echo "Deploying version -->>>>> ${{ env.TAG_NAME }}"
+        run: echo "Deploying version -->>>>> "${{ env.TAG_NAME }}
         uses: docker/build-push-action@v4
         with:
           context: .
