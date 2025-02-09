@@ -14,6 +14,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Get the latest tag from Git
+      - name: Get latest Git tag
+        run: echo "TAG_NAME=$(git describe --tags --abbrev=0 || echo latest)" >> $GITHUB_ENV
+
       # Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
