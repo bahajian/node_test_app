@@ -1,6 +1,9 @@
-name: Build and Push Docker Image
+name: Build and Push Docker Image on Release
 
 on:
+  release:
+    types:
+      - created  # Trigger workflow when a new release is created
   push:
     branches:
       - master
@@ -14,9 +17,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Get the latest tag from Git
-      - name: Get latest Git tag
-        run: echo "TAG_NAME=$(git describe --tags --abbrev=0 || echo latest)" >> $GITHUB_ENV
+      # Extract the Release Name
+      - name: Get Release Name
+        run: echo "RELEASE_NAME=$(jq -r '.release.name' $GITHUB_EVENT_PATH | tr ' ' '-')" >> $GITHUB_ENV
 
       # Log in to Docker Hub
       - name: Log in to Docker Hub
@@ -35,7 +38,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/node_test_app:${{ env.TAG_NAME }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/node_test_app:${{ env.RELEASE_NAME }}
 
       # Optional: Logout from Docker Hub
       - name: Log out from Docker Hub
