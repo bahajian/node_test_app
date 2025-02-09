@@ -1,0 +1,69 @@
+---
+# 1) Create the Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: node-test-app-yellow
+
+---
+# 2) Create the Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-test-app-yellow-deployment
+  namespace: node-test-app-yellow
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: node-test-app-yellow
+  template:
+    metadata:
+      labels:
+        app: node-test-app-yellow
+    spec:
+      containers:
+        - name: node-test-app-yellow-container
+          # Replace with your container image that listens on port 80
+          image: bahajian/node_test_app:yellow
+          ports:
+            - containerPort: 80
+
+---
+# 3) Create the Service (NodePort)
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-test-app-yellow-service
+  namespace: node-test-app-yellow
+spec:
+  selector:
+    app: node-test-app-yellow
+  type: NodePort
+  ports:
+    - port: 80          # Internal cluster port
+      targetPort: 80    # Container port
+      protocol: TCP
+      nodePort: 30001   # External NodePort (adjust if needed)
+
+---
+# 4) Optional: Create the Ingress resource
+#    Requires a functioning Ingress controller and admission webhook.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: node-test-app-yellow-ingress
+  namespace: node-test-app-yellow
+spec:
+  ingressClassName: nginx  # Adjust to your Ingress class name if different
+  rules:
+    - host: node-test-app-yellow.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: node-test-app-yellow-service
+                port:
+                  number: 80
