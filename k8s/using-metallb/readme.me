@@ -1,0 +1,51 @@
+kubectl delete namespace metallb-system
+
+kubectl delete crd bfdprofiles.metallb.io
+kubectl delete crd bgpadvertisements.metallb.io
+kubectl delete crd bgppeers.metallb.io
+kubectl delete crd communities.metallb.io
+kubectl delete crd ipaddresspools.metallb.io
+kubectl delete crd l2advertisements.metallb.io
+kubectl delete crd servicel2statuses.metallb.io
+
+
+
+kubectl delete ipaddresspool --all -n metallb-system
+kubectl delete l2advertisement --all -n metallb-system
+kubectl delete bgppeer --all -n metallb-system
+kubectl delete bgpadvertisement --all -n metallb-system
+
+
+kubectl get all -n metallb-system
+
+helm uninstall metallb -n metallb-system
+kubectl get crds | grep metallb
+kubectl delete crd $(kubectl get crds | grep metallb | awk '{print $1}')
+
+kubectl delete validatingwebhookconfiguration metallb-webhook-configuration
+kubectl delete validatingwebhookconfiguration metallb-webhook-configuration
+kubectl delete secret metallb-webhook-cert -n metallb-system
+
+----------------------------------
+
+kubectl create namespace metallb-system
+helm repo add metallb https://metallb.github.io/metallb
+helm repo update
+helm install metallb metallb/metallb -n metallb-system
+
+kubectl delete secret metallb-webhook-cert -n metallb-system
+kubectl delete pod -l app.kubernetes.io/component=controller -n metallb-system
+kubectl get validatingwebhookconfigurations
+
+
+
+
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.10/config/manifests/metallb-native.yaml
+
+
+
+
+
+
+
+

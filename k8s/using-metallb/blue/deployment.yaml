@@ -30,7 +30,7 @@ spec:
             - containerPort: 80
 
 ---
-# 3) Create the Service (NodePort)
+# 3) Create the Service (LoadBalancer)
 apiVersion: v1
 kind: Service
 metadata:
@@ -39,31 +39,30 @@ metadata:
 spec:
   selector:
     app: node-test-app-blue
-  type: NodePort
+  type: LoadBalancer
   ports:
     - port: 80          # Internal cluster port
       targetPort: 80    # Container port
       protocol: TCP
-      nodePort: 30001   # External NodePort (adjust if needed)
+  loadBalancerIP: 192.168.2.200  # Ensure this IP is in MetalLB's range
 
 ---
-# 4) Optional: Create the Ingress resource
-#    Requires a functioning Ingress controller and admission webhook.
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
 metadata:
-  name: node-test-app-blue-ingress
-  namespace: node-test-app-blue
+  name: node-test-app-blue-ip-pool
+  namespace: metallb-system  # MetalLB resources should be in metallb-system
 spec:
-  ingressClassName: nginx  # Adjust to your Ingress class name if different
-  rules:
-    - host: node-test-app-blue.local
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: node-test-app-blue-service
-                port:
-                  number: 80
+  addresses:
+    - 192.168.2.200-192.168.2.220  # Adjust this range as needed
+
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: node-test-app-blue-advertisement
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - node-test-app-blue-ip-pool
+

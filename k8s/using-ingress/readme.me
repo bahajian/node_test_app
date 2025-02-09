@@ -1,0 +1,16 @@
+
+kubectl get pods -n ingress-nginx                                    
+kubectl get svc -n ingress-nginx
+
+# if is available need to delete that
+
+
+
+helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace \
+  --set controller.admissionWebhooks.enabled=false
+
+
+kubectl delete validatingwebhookconfiguration ingress-nginx-admission
+

@@ -13,7 +13,7 @@ metadata:
   name: node-test-app-green-deployment
   namespace: node-test-app-green
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: node-test-app-green
@@ -44,7 +44,7 @@ spec:
     - port: 80          # Internal cluster port
       targetPort: 80    # Container port
       protocol: TCP
-      nodePort: 30001   # External NodePort (adjust if needed)
+      nodePort: 30002   # External NodePort (adjust if needed)
 
 ---
 # 4) Optional: Create the Ingress resource
