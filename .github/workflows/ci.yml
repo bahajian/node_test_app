@@ -1,50 +1,52 @@
-name: Build and Push Docker Image on Release
+name: Build and Push Docker Image
 
 on:
-  release:
-    types:
-      - created  # Trigger workflow when a new release is created
   push:
     branches:
       - master
+  release:
+    types:
+      - created  # Trigger on new releases
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Debug event payload
-      - name: Debug GitHub Event
-        run: cat $GITHUB_EVENT_PATH
-
-      # Extract Release Name or fallback to Tag
-      - name: Get Release Name
+      # Determine Docker Image Tag
+      - name: Set Docker Image Tag
         run: |
-          RELEASE_NAME=$(jq -r '.release.name // empty' $GITHUB_EVENT_PATH | tr ' ' '-')
-          if [ -z "$RELEASE_NAME" ]; then
-            echo "Release name is missing, using tag name instead."
-            RELEASE_NAME=${GITHUB_REF#refs/tags/}
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            TAG_NAME=${GITHUB_REF#refs/tags/}  # Extract tag (e.g., v1.2.3)
+          else
+            TAG_NAME=${GITHUB_REF#refs/heads/}  # Extract branch name (e.g., master)
           fi
-          echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
+          TAG_NAME=$(echo "$TAG_NAME" | tr '/' '-')  # Replace '/' with '-'
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
 
+      # Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      # Build and push the Docker image
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/node_test_app:${{ env.RELEASE_NAME }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/node_test_app:${{ env.TAG_NAME }}
 
+      # Optional: Logout from Docker Hub
       - name: Log out from Docker Hub
         run: docker logout
