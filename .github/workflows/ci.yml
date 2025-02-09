@@ -4,29 +4,20 @@ on:
   push:
     branches:
       - master
-  release:
-    types:
-      - created  # Trigger on new releases
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the code
+      # Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Determine Docker Image Tag
-      - name: Set Docker Image Tag
-        run: |
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-            TAG_NAME=${GITHUB_REF#refs/tags/}  # Extract tag (e.g., v1.2.3)
-          else
-            TAG_NAME=${GITHUB_REF#refs/heads/}  # Extract branch name (e.g., master)
-          fi
-          TAG_NAME=$(echo "$TAG_NAME" | tr '/' '-')  # Replace '/' with '-'
-          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+      # Get the latest tag from Git
+      - name: Extract tag name
+        id: get_tag
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
       # Log in to Docker Hub
       - name: Log in to Docker Hub
