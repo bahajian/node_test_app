@@ -3,29 +3,29 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: node-test-app-blue
+  name: node-test-app-green
 
 ---
 # 2) Create the Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: node-test-app-blue-deployment
-  namespace: node-test-app-blue
+  name: node-test-app-green-deployment
+  namespace: node-test-app-green
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node-test-app-blue
+      app: node-test-app-green
   template:
     metadata:
       labels:
-        app: node-test-app-blue
+        app: node-test-app-green
     spec:
       containers:
-        - name: node-test-app-blue-container
+        - name: node-test-app-green-container
           # Replace with your container image that listens on port 80
-          image: bahajian/node_test_app:blue
+          image: bahajian/node_test_app:green
           ports:
             - containerPort: 80
 
@@ -34,11 +34,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: node-test-app-blue-service
-  namespace: node-test-app-blue
+  name: node-test-app-green-service
+  namespace: node-test-app-green
 spec:
   selector:
-    app: node-test-app-blue
+    app: node-test-app-green
   type: LoadBalancer
   ports:
     - port: 80          # Internal cluster port
